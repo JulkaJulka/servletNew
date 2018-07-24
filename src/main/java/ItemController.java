@@ -9,7 +9,7 @@ public class ItemController {
     private Item update(Item item){
         return itemService.update(item);
     }
-    private void delete(Item item){
-        itemService.delete(item);
+    private void delete(long id){
+        itemService.delete(id);
     }
 }
