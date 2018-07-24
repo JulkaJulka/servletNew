@@ -10,8 +10,12 @@ public class ItemService {
     public Item update(Item item){
         return itemDAO.update(item);
     }
-    public void delete(Item item){
-        itemDAO.delete(item.getId());
+    public void delete(long id){
+        itemDAO.delete(id);
+    }
+
+    public Item findById(Long id){
+        return itemDAO.findById(id);
     }
 
 }

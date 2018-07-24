@@ -16,13 +16,12 @@ import java.io.*;
 
 @WebServlet(urlPatterns = "/test")
 public class MyServlet extends HttpServlet {
-    private ItemDAO itemDAO = new ItemDAO();
     private ItemService itemService = new ItemService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Long id = Long.parseLong(request.getParameter("id"));
-        Item item = itemDAO.findById(id);
+        Item item = itemService.findById(id);
         response.getWriter().println(item.toString());
     }
 
@@ -47,7 +46,7 @@ public class MyServlet extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doPut(req, resp);
         Item itemPut = convertJSONStringToObject(req);
-        itemDAO.update(itemPut);
+        itemService.update(itemPut);
         resp.getWriter().println(itemPut.toString());
     }
 
@@ -57,7 +56,7 @@ public class MyServlet extends HttpServlet {
         super.doDelete(req, resp);
         String sId = req.getParameter("id");
         Long id = Long.parseLong(sId);
-        itemDAO.delete(id);
+        itemService.delete(id);
     }
 
 
