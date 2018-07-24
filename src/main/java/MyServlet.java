@@ -17,6 +17,7 @@ import java.io.*;
 @WebServlet(urlPatterns = "/test")
 public class MyServlet extends HttpServlet {
     private ItemDAO itemDAO = new ItemDAO();
+    private ItemService itemService = new ItemService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -36,7 +37,9 @@ public class MyServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, HibernateException {
         super.doPost(req, resp);
         Item item = convertJSONStringToObject(req);
-        itemDAO.save(item);
+
+        itemService.save(item);
+
         resp.getWriter().println(item.toString());
     }
 
