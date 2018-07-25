@@ -23,18 +23,11 @@ public class MyServlet extends HttpServlet {
         Long id = Long.parseLong(request.getParameter("id"));
         Item item = itemService.findById(id);
         response.getWriter().println(item.toString());
+
     }
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //req.getInputStream();
-        //req.getReader();
-        super.service(req, resp);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, HibernateException {
-        super.doPost(req, resp);
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
         Item item = convertJSONStringToObject(req);
 
         itemService.save(item);
@@ -43,8 +36,8 @@ public class MyServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPut(req, resp);
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException,HibernateException {
+
         Item itemPut = convertJSONStringToObject(req);
         itemService.update(itemPut);
         resp.getWriter().println(itemPut.toString());
@@ -53,10 +46,10 @@ public class MyServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        super.doDelete(req, resp);
         String sId = req.getParameter("id");
         Long id = Long.parseLong(sId);
         itemService.delete(id);
+        resp.getWriter().println("Item id " + id + " was deleted successfully");
     }
 
 
