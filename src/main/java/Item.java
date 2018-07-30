@@ -80,13 +80,19 @@ public class Item {
                 '}';
     }
 
-    public boolean validate(Item item) throws IllegalAccessException {
-        for (Field f : item.getClass().getDeclaredFields()) {
-            if (f.get(item) == null) {
-                return false;
-            }
-        }
-        return true;
+    public boolean validateItemOnExistanceFields(Item item) throws BadRequestException {
+        try {
+            for (Field f : item.getClass().getDeclaredFields()) {
+                if (f.get(item) == null) {
+                    throw new BadRequestException("Wrong data of field: " + f.getName());
 
+                }
+            }
+            return true;
+        } catch (IllegalAccessException e) {
+            e.getMessage();
+        }
+
+        return false;
     }
 }

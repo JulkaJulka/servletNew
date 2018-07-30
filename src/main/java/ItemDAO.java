@@ -5,14 +5,17 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
+import javax.persistence.OptimisticLockException;
+
 public class ItemDAO {
 
 
-        public static final String FIND_ITM_BY_ID_ITEM = "FROM Item WHERE id = :ID ";
-        public static final String DELETE_ITM_BY_ID_ITEM2 = "DELETE FROM Item WHERE ID = :ID";
-        public static final String DELETE_ITM_BY_ID_ITEM = "DELETE FROM Item WHERE id = :ID";
+    public static final String FIND_ITM_BY_ID_ITEM = "FROM Item WHERE id = :ID ";
+    public static final String FIND_EQUAL_ITEM = "FROM Item WHERE name = :NAME AND dateCreated = :DATE_CREATED AND " +
+            "lastUpdatedDate = :LAST_UPDATED_DATE";
+    public static final String DELETE_ITM_BY_ID_ITEM = "DELETE FROM Item WHERE id = :ID";
 
-        private SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
 
     public ItemDAO() {
     }
@@ -23,6 +26,7 @@ public class ItemDAO {
         try (Session session = createSessionFactory().openSession()) {
 
             tr = session.getTransaction();
+
             tr.begin();
 
             session.save(item);
@@ -38,12 +42,13 @@ public class ItemDAO {
         }
     }
 
-    public Item update(Item item) throws HibernateException {
+    public Item update(Item item)  {
 
         Transaction tr = null;
         try (Session session = createSessionFactory().openSession()) {
 
             tr = session.getTransaction();
+
             tr.begin();
 
             session.update(item);
@@ -57,55 +62,79 @@ public class ItemDAO {
                 tr.rollback();
             throw new HibernateException("Update is failed");
         }
+
     }
 
-        public void delete(long id) {
-            Transaction tr = null;
-            try (Session session = createSessionFactory().openSession()) {
+    public void delete(long id) {
+        Transaction tr = null;
+        try (Session session = createSessionFactory().openSession()) {
 
-                tr = session.getTransaction();
-                tr.begin();
+            tr = session.getTransaction();
+            tr.begin();
 
-                Query queryDelHt = session.createQuery(DELETE_ITM_BY_ID_ITEM);
-                queryDelHt.setParameter("ID", id);
-                queryDelHt.executeUpdate();
+            Query queryDelHt = session.createQuery(DELETE_ITM_BY_ID_ITEM);
+            queryDelHt.setParameter("ID", id);
+            queryDelHt.executeUpdate();
 
-                tr.commit();
+            tr.commit();
 
-            } catch (HibernateException e) {
-                System.err.println(e.getMessage());
-                if (tr != null)
-                    tr.rollback();
-                throw new HibernateException("Delete is failed");
-            }
+        } catch (HibernateException e) {
+            System.err.println(e.getMessage());
+            if (tr != null)
+                tr.rollback();
+            throw new HibernateException("Delete is failed");
         }
+    }
 
-        public Item findById(Long id) {
-            try (Session session = createSessionFactory().openSession()) {
+    public Item findById(Long id) throws HibernateException {
+        try (Session session = createSessionFactory().openSession()) {
 
-                Query query = session.createQuery(FIND_ITM_BY_ID_ITEM);
-                query.setParameter("ID", id);
+            Query query = session.createQuery(FIND_ITM_BY_ID_ITEM);
+            query.setParameter("ID", id);
 
-                if (query.uniqueResult() == null)
-                    return null;
-                Item item = (Item) query.getSingleResult();
+            if (query.uniqueResult() == null)
+                return null;
 
-                return item;
+            Item item = (Item) query.getSingleResult();
 
-            } catch (HibernateException e) {
-                System.err.println(e.getMessage());
-                throw new HibernateException("Something went wrong");
-            }
+            return item;
+
+        } catch (HibernateException e) {
+            System.err.println(e.getMessage());
+            throw new HibernateException("Something went wrong");
         }
+    }
 
-        public SessionFactory createSessionFactory() {
+    public Item findEqualItemInDB(Item item) throws HibernateException {
+        Transaction tr = null;
+        try (Session session = createSessionFactory().openSession()) {
 
-            //singleton pattern
-            if (sessionFactory == null) {
-                sessionFactory = new Configuration().configure().buildSessionFactory();
-            }
-            return sessionFactory;
+            Query query = session.createQuery(FIND_EQUAL_ITEM);
+            query.setParameter("NAME", item.getName());
+            query.setParameter("DATE_CREATED", item.getDateCreated());
+            query.setParameter("LAST_UPDATED_DATE", item.getLastUpdatedDate());
+
+           if (query.uniqueResult() == null)
+             return null;
+            Item entity = (Item) query.getSingleResult();
+
+            return entity;
+
+        } catch (HibernateException e) {
+            System.err.println(e.getMessage());
+            throw new HibernateException("Something went wrong");
         }
+    }
+
+
+    public SessionFactory createSessionFactory() {
+
+        //singleton pattern
+        if (sessionFactory == null) {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+        }
+        return sessionFactory;
+    }
 
 
 }

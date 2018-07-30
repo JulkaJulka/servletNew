@@ -2,14 +2,14 @@ public class ItemController {
 
     private ItemService itemService = new ItemService();
 
-    private Item save(Item item)  {
+    public Item save(Item item) throws BadRequestException {
         return itemService.save(item);
     }
 
-    private Item update(Item item){
+    private Item update(Item item) throws BadRequestException{
         return itemService.update(item);
     }
-    private void delete(long id){
+    private void delete(long id) throws BadRequestException{
         itemService.delete(id);
     }
 }

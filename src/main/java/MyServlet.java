@@ -22,25 +22,38 @@ public class MyServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Long id = Long.parseLong(request.getParameter("id"));
         Item item = itemService.findById(id);
-        response.getWriter().println(item.toString());
+
+        if (item == null) {
+            response.getWriter().println("Item with id " + id + " doesn't exist in DB");
+        } else {
+            response.getWriter().println(item.toString());
+        }
 
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Item item = convertJSONStringToObject(req);
-
-        itemService.save(item);
-
-        resp.getWriter().println(item.toString());
+        try {
+            itemService.save(item);
+            resp.getWriter().println(item.toString());
+        } catch (BadRequestException e) {
+            e.printStackTrace();
+            resp.getWriter().println("Saving unsuccessful " + e.getMessage());
+        }
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException,HibernateException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, HibernateException {
 
         Item itemPut = convertJSONStringToObject(req);
-        itemService.update(itemPut);
-        resp.getWriter().println(itemPut.toString());
+        try {
+            itemService.update(itemPut);
+            resp.getWriter().println(itemPut.toString());
+        } catch (BadRequestException e) {
+            e.printStackTrace();
+            resp.getWriter().println("Updating unsuccessful " + e.getMessage());
+        }
     }
 
     @Override
@@ -48,23 +61,25 @@ public class MyServlet extends HttpServlet {
 
         String sId = req.getParameter("id");
         Long id = Long.parseLong(sId);
-        itemService.delete(id);
-        resp.getWriter().println("Item id " + id + " was deleted successfully");
+
+        try {
+            itemService.delete(id);
+            resp.getWriter().println("Item id " + id + " was deleted successfully");
+        } catch (BadRequestException e) {
+            e.printStackTrace();
+            resp.getWriter().println("Deleting unsuccessful " + e.getMessage());
+        }
     }
 
 
     private Item convertJSONStringToObject(HttpServletRequest req) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
+        try (InputStream is = req.getInputStream()) {
 
-            Item item = mapper.readValue(req.getInputStream(), Item.class);
+            Item item = mapper.readValue(is, Item.class);
 
             return item;
 
-        } catch (JsonGenerationException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
