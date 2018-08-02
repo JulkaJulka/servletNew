@@ -114,13 +114,16 @@ public class ItemDAO {
             query.setParameter("DATE_CREATED", item.getDateCreated());
             query.setParameter("LAST_UPDATED_DATE", item.getLastUpdatedDate());
 
-           if (query.uniqueResult() == null)
-             return null;
+            query.getResultList();
+
+
+          if (query.uniqueResult() == null)
+            return null;
             Item entity = (Item) query.getSingleResult();
 
             return entity;
 
-        } catch (HibernateException e) {
+       } catch (HibernateException e) {
             System.err.println(e.getMessage());
             throw new HibernateException("Something went wrong");
         }

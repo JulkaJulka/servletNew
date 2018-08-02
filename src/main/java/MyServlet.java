@@ -20,13 +20,17 @@ public class MyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Long id = Long.parseLong(request.getParameter("id"));
-        Item item = itemService.findById(id);
-
-        if (item == null) {
-            response.getWriter().println("Item with id " + id + " doesn't exist in DB");
-        } else {
-            response.getWriter().println(item.toString());
+        try {
+            Long id = Long.parseLong(request.getParameter("id"));
+            Item item = itemService.findById(id);
+            if (item == null) {
+                response.getWriter().println("Item with id " + id + " doesn't exist in DB");
+            } else {
+                response.getWriter().println(item.toString());
+            }
+        } catch (HibernateException | IOException e) {
+            e.printStackTrace();
+            response.getWriter().println("Getting unsuccessful " + e.getMessage());
         }
 
     }
@@ -37,20 +41,20 @@ public class MyServlet extends HttpServlet {
         try {
             itemService.save(item);
             resp.getWriter().println(item.toString());
-        } catch (BadRequestException e) {
+        } catch (BadRequestException | HibernateException | IOException e) {
             e.printStackTrace();
             resp.getWriter().println("Saving unsuccessful " + e.getMessage());
         }
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, HibernateException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         Item itemPut = convertJSONStringToObject(req);
         try {
             itemService.update(itemPut);
             resp.getWriter().println(itemPut.toString());
-        } catch (BadRequestException e) {
+        } catch (BadRequestException | HibernateException | IOException e) {
             e.printStackTrace();
             resp.getWriter().println("Updating unsuccessful " + e.getMessage());
         }
@@ -65,7 +69,7 @@ public class MyServlet extends HttpServlet {
         try {
             itemService.delete(id);
             resp.getWriter().println("Item id " + id + " was deleted successfully");
-        } catch (BadRequestException e) {
+        } catch (BadRequestException | HibernateException | IOException e) {
             e.printStackTrace();
             resp.getWriter().println("Deleting unsuccessful " + e.getMessage());
         }
